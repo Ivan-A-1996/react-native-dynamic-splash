@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-native",
+    "lib": [
+      "es6",
+      "dom",
+      "es2017"
+    ],
+    "types": [
+      "reflect-metadata",
+      "react-native"
+    ],
+    "moduleResolution": "node",
+    "target": "es6",
+    "noImplicitAny": true,
+    // "noUnusedLocals": true,
+    "noImplicitReturns": true,
+    "experimentalDecorators": true,
+    "preserveConstEnums": false,
+    "alwaysStrict": true,
+    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "emitDecoratorMetadata": true
+  },
+  "exclude": [
+    "node_modules",
+    "ios",
+    "android"
+  ]
+}

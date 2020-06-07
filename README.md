@@ -1,23 +1,16 @@
 # react-native-dynamic-splash
-[以中文查看](./README_zh-CN.md)  
 React Native dynamic launch page (advertisement page), support for Android and iOS
 
 ## Installation
 ```
-npm install react-native-dynamic-splash --save
+npm install Ivan-A-1996/react-native-dynamic-splash --save
 ```
 or
 ```
-yarn add react-native-dynamic-splash
+yarn add Ivan-A-1996/react-native-dynamic-splash
 ```
 
-## Demo
-| IOS | Android |
-| --- | ------- |
-| ![IOS](./demo.ios.gif) | ![Android](./demo.android.gif) |
-
 ## installation React Native 0.60
-
 [CLI autolink feature](https://github.com/react-native-community/cli/blob/master/docs/autolinking.md) links the module while building the app. 
 
 
@@ -102,15 +95,9 @@ public class MainActivity extends ReactActivity {
     ...
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Config splashConfig = new Config();  // Splash configuration class
-        // splashConfig.setImageUrl("http://custom/splash.png");
-        splashConfig.setAutoHide(true);
-        // splashConfig.setAutoHideTime(2000);
-        // splashConfig.setLayoutResID(R.layout.custom_splash_dynamic);
-        // splashConfig.setThemeResId(R.style.Custom_Splash_Theme);
-        // splashConfig.setAutoDownload(false);
-        // splashConfig.setSplashSavePath("/customSplashPath/");
-        // splashConfig.setDynamicShow(false);
+        Config splashConfig = new Config(); // auto get values from memory 
+        if (splashConfig.layoutResID == null) splashConfig.layoutResID = "custom_splash_dynamic";
+        if (splashConfig.themeResId == null) splashConfig.themeResId = "Custom_Splash_Theme";
         new DynamicSplash(this, splashConfig);  // Add display splash here
         super.onCreate(savedInstanceState);
     }
@@ -132,13 +119,9 @@ public class MainActivity extends ReactActivity {
   ...
   [self.window makeKeyAndVisible];
 
-  SplashConfig *config = [[SplashConfig alloc] init];  // Splash configuration class
-  // config.imageUrl = @"http://custom/splash.png";
-  config.autoHide = true;
-  // config.autoHideTime = 1000;
-  // config.dynamicShow = false;
-  // config.autoDownload = false;
-  // config.splashSavePath = @"custom";
+  SplashConfig *config = [[SplashConfig alloc] init];  // auto get values from memory 
+  if (config.layoutResID == null) config.layoutResID = @"custom_splash_dynamic";
+  if (config.themeResId == null) config.themeResId = @"Custom_Splash_Theme";
   [[RNDynamicSplash alloc] initWithShow:rootView splashConfig:config];  // Add display splash here
 
   return YES;
@@ -149,70 +132,27 @@ public class MainActivity extends ReactActivity {
 ```
 
 ### Configuration
-| type | Field | defaultValue | setter | description |
-| ---- | ----- | ------------ | ------ | ----------- |
-| String | imageUrl | "" | setImageUrl | Download picture address |
-| String | splashSavePath | /splash/ | setSplashSavePath | Save image address |
-| int | themeResId(Android only) | R.style.DynamicSplash_Theme | setThemeResId | Use theme resource id |
-| int | layoutResId(Android only) | R.layout.splash_dynamic | setLayoutResId | Use layout file resource id |
-| boolean | autoDownload | true | setAutoDownload | Whether to download automatically |
-| boolean | dynamicShow | true | setDynamicShow | Whether to display the downloaded picture |
-| boolean | autoHide | false | setAutoHide | Whether to automatically hide |
-| long | autoHideTime | 3000 | setAutoHideTime | Automatically hide time |
+| type | Field | defaultValue | description |
+| ---- | ----- | ------------ | ----------- |
+| string | themeResId | R.style.RNDynamicSplashTheme | Use theme resource id |
+| string | layoutResId | R.layout.RNDynamicSplashLayout | Use layout file resource id |
+| string | lang | systemLang | User preferred lang |
+| elementData[] | data | [] | {elementId: string; type: ElementTypes; values: {lang?: sting; startDate?: ISOString; endDate?: ISOString; value: string}[] |
 
 ### Other instructions
+- Before adding images to configs load them by Image and Image.prefetch and with accuracy Image.getSize and Image.getSizeWithHeaders(cache functionality can be disabled in the future fresco/rn releases)
 - The first time to start displaying the default image, the second time to start displaying the downloaded image again
-- Android Can use their own written resource files and topics, and the same name as the default configuration, otherwise call the set method to change the configuration, reference package resource file
-- Android doesn't set imageUrl to show resource image in layout file
-- ios does not set imageUrl to show picture of LaunchImage
-
-#### Provide get request method
-Can call the request to get the address of the picture
-```java
-// mock json data
-// {
-//     splashInfo: {
-//         imageUrl: "http://***.png"
-//     }
-// }
-...
-import com.taumu.rnDynamicSplash.utils.HttpUtils;
-
-public static void getSplashImageUrl(String getApi) {
-    HttpUtils.get(getApi, new HttpUtils.Callback() {
-        @Override
-        public void onResponse(String jsonString) {
-            try {
-                JSONObject jsonObject = new JSONObject(jsonString);
-                JSONObject valueObject = jsonObject.getJSONObject("splashInfo");
-                String imageUrl = valueObject.getString("imageUrl");
-                if (!TextUtils.isEmpty(imageUrl)) {
-                    Config splashConfig = new Config();
-                    splashConfig.setImageUrl(imageUrl);
-                    new DynamicSplash(activity, splashConfig);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    });
-}
-...
-```
+- Can use resource files and topics, and the same name as the default configuration, otherwise call the set method to change the configuration, reference package resource file
 
 ## API
-| name | type | description | conflict |
-| ---- | ---- | ----------- | -------- |
-| hide() | function | Js control hidden splash | autoHide not set true |
-| downloadSplash() | function | Js control download pictures | autoDownload is set to false |
+| name | type | description |
+| ---- | ---- | ----------- |
+| hide() | function | Js control hidden splash |
+| getConfig() | function | Get splash configs (from last session) |
+| setConfig() | function | Set splash configs |
 
 ## TODO
-- [x] Android version splash
-- [x] Ios version splash
-- [ ] js incoming url as image download link
-- [ ] Configuration add skip button
-- [ ] Ios rewrite using swift
+- [ ] Rework standard rn mainApplication and appFile to show splash before rn initializing 
 
 ## Changelog
 - 1.0.*
-- 1.1.*

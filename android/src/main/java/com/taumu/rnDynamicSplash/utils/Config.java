@@ -1,87 +1,34 @@
 package com.taumu.rnDynamicSplash.utils;
 
-import com.taumu.rnDynamicSplash.R;
+import android.content.Context;
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.List;
 
 public class Config {
-    private String imageUrl = "";
-    private int color = 0;
-    private String splashSavePath = "/splash/";
-    private int themeResId = R.style.DynamicSplash_Theme;
-    private int layoutResId = R.layout.splash_dynamic;
-    private boolean autoDownload = true;
-    private boolean dynamicShow = true;
-    private boolean autoHide = false;
-    private long autoHideTime = 3000;
+  public String themeResId = Constants.defaultTheme;
+  public String layoutResId = Constants.defaultLayout;
+  public String lang = null;
+  public List<ElementData> data;
 
-    public int getColor() {
-        return color;
-    }
+  public Config(Context context) {
+    String jsonConfigs = Helpers.getJsonConfigs(context);
+    if (jsonConfigs != null) {
+      try {
+        JSONObject configs = new JSONObject(jsonConfigs);
 
-    public void setColor(int color) {
-        this.color = color;
-    }
+        if (configs.has("themeResId")) this.themeResId = configs.getString("themeResId");
+        if (configs.has("layoutResId")) this.layoutResId = configs.getString("layoutResId");
+        if (configs.has("lang")) this.lang = configs.getString("lang");
 
-    public String getImageUrl() {
-        return imageUrl;
+        JSONArray data = configs.has("data") ? configs.getJSONArray("data") : null;
+        this.data = Helpers.getDataListFromJson(data);
+      } catch (JSONException error) {
+        Log.v(Constants.packageName, "Error on parsing configs JSON");
+      }
     }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public int getThemeResId() {
-        return themeResId;
-    }
-
-    public void setThemeResId(int themeResId) {
-        this.themeResId = themeResId;
-    }
-
-    public String getSplashSavePath() {
-        return splashSavePath;
-    }
-
-    public void setSplashSavePath(String splashSavePath) {
-        this.splashSavePath = splashSavePath;
-    }
-
-    public boolean isAutoDownload() {
-        return autoDownload;
-    }
-
-    public void setAutoDownload(boolean autoDownload) {
-        this.autoDownload = autoDownload;
-    }
-
-    public boolean isAutoHide() {
-        return autoHide;
-    }
-
-    public void setAutoHide(boolean autoHide) {
-        this.autoHide = autoHide;
-    }
-
-    public long getAutoHideTime() {
-        return autoHideTime;
-    }
-
-    public void setAutoHideTime(long autoHideTime) {
-        this.autoHideTime = autoHideTime;
-    }
-
-    public boolean isDynamicShow() {
-        return dynamicShow;
-    }
-
-    public void setDynamicShow(boolean dynamicShow) {
-        this.dynamicShow = dynamicShow;
-    }
-
-    public int getLayoutResId() {
-        return layoutResId;
-    }
-
-    public void setLayoutResId(int layoutResId) {
-        this.layoutResId = layoutResId;
-    }
+  }
 }

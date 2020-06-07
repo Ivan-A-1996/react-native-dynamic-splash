@@ -2,107 +2,88 @@ package com.taumu.rnDynamicSplash;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.os.Handler;
+import android.content.res.Resources;
+import android.util.Log;
 import android.widget.ImageView;
-
-import java.lang.ref.WeakReference;
+import android.widget.TextView;
 
 import com.taumu.rnDynamicSplash.utils.Config;
+import com.taumu.rnDynamicSplash.utils.Constants;
+import com.taumu.rnDynamicSplash.utils.ElementData;
+import com.taumu.rnDynamicSplash.utils.Helpers;
 
+import java.lang.ref.WeakReference;
+import java.util.Locale;
 
 public class DynamicSplash {
-    private static Dialog mDialog;
-    private static WeakReference<Activity> mActivity;
-    private static ImageView mSplashImage;
+  private static Dialog mDialog;
+  private static WeakReference<Activity> mActivity;
 
-    public static DynamicSplash mDynamicSplash;
-    public static Config mConfig;
+  static DynamicSplash mDynamicSplash;
 
-    public DynamicSplash(Activity activity) {
-        this(activity, new Config());
-    }
+  public DynamicSplash(final Activity activity, final Config config) {
+    if (activity == null) return;
 
-    public DynamicSplash(final Activity activity, Config config) {
-        if (activity == null) return;
-        if (config == null) {
-            config = new Config();
-        }
-        final Config finalConfig = setConfigField(activity, config);
-        mConfig = finalConfig;
-        mDynamicSplash = this;
-        mActivity = new WeakReference<Activity>(activity);
+    mDynamicSplash = this;
+    mActivity = new WeakReference<>(activity);
 
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (!activity.isFinishing()) {
-                    mDialog = new Dialog(activity, finalConfig.getThemeResId());
-                    mDialog.setContentView(finalConfig.getLayoutResId());
-                    mDialog.setCancelable(false);
-                    mSplashImage = (ImageView) mDialog.findViewById(R.id.dynamicSplash_id);
-                    mSplashImage.setBackgroundColor(mConfig.getColor());
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (!activity.isFinishing()) {
+          Resources resources = activity.getResources();
+          mDialog = new Dialog(activity, resources.getIdentifier(config.themeResId, "theme", activity.getPackageName()));
+          mDialog.setContentView(resources.getIdentifier(config.layoutResId, "layout", activity.getPackageName()));
+          mDialog.setCancelable(false);
+          boolean isHaveData = false;
 
-                    if (finalConfig.isDynamicShow()) {
-                        DynamicSplashDownLoad.setDialogImage(activity, mSplashImage);
-                    }
-                    if (finalConfig.isAutoDownload()) {
-                        downloadSplash(activity);
-                    }
+          String lang = config.lang != null ? config.lang : Locale.getDefault().getLanguage();
 
-                    if (!mDialog.isShowing()) {
-                        mDialog.show();
-                        if (finalConfig.isAutoHide()) {
-                            autoHide(activity);
-                        }
-                    }
-                }
+          for (ElementData data : config.data) {
+            int id = resources.getIdentifier(data.elementId, "id", activity.getPackageName());
+
+            String value = Helpers.getValue(data.values, lang);
+
+            if (value != null) {
+              isHaveData = true;
+              if (data.type == ElementData.ImageType) {
+                ImageView mSplashImage = mDialog.findViewById(id);
+
+                Helpers.setImageFromFresco(value, mSplashImage, activity);
+              } else if (data.type == ElementData.TextType) {
+                TextView mSplashImage = mDialog.findViewById(id);
+
+                mSplashImage.setText(value);
+              } else {
+                Log.v(Constants.packageName, "Bad type provided:" + data.type);
+              }
             }
-        });
-    }
+          }
 
-    private void autoHide(final Activity activity) {
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                hide(activity);
-            }
-        }, mConfig.getAutoHideTime());
-    }
-
-    private Config setConfigField(Activity activity, Config config) {
-        String savePath = config.getSplashSavePath();
-        if (!savePath.startsWith("/")) {
-            savePath = "/" + savePath;
+          if (isHaveData && !mDialog.isShowing()) {
+            mDialog.show();
+          }
         }
-        if (!savePath.endsWith("/")) {
-            savePath = savePath + "/";
-        }
-        savePath = activity.getApplication().getFilesDir().getAbsolutePath() + savePath;
-        config.setSplashSavePath(savePath);
-        return config;
-    }
+      }
+    });
+  }
 
-    public void downloadSplash(Activity activity) {
-        DynamicSplashDownLoad.downloadSplash(activity);
+  public void hide(Activity activity) {
+    if (activity == null) {
+      if (mActivity == null) {
+        return;
+      }
+      activity = mActivity.get();
     }
-
-    public void hide(Activity activity) {
-        if (activity == null) {
-            if (mActivity == null) {
-                return;
-            }
-            activity = mActivity.get();
+    if (activity == null) return;
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (mDialog != null && mDialog.isShowing()) {
+          mDialog.dismiss();
+          mDialog = null;
         }
-        if (activity == null) return;
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mDialog != null && mDialog.isShowing()) {
-                    mDialog.dismiss();
-                    mDialog = null;
-                }
-            }
-        });
-    }
+      }
+    });
+  }
 }

@@ -4,6 +4,7 @@
   "description": "dynamic display splash",
   "main": "index.js",
   "scripts": {
+    "ts": "tsc -p .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "TaumuLu",
@@ -22,5 +23,10 @@
   "bugs": {
     "url": "https://github.com/TaumuLu/react-native-dynamic-splash/issues"
   },
-  "homepage": "https://github.com/TaumuLu/react-native-dynamic-splash#readme"
+  "homepage": "https://github.com/TaumuLu/react-native-dynamic-splash#readme",
+  "devDependencies": {
+    "@types/react-native": "^0.62.13",
+    "@types/reflect-metadata": "^0.1.0",
+    "typescript": "^3.9.5"
+  }
 }
