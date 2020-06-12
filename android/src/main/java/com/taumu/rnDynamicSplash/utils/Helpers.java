@@ -3,24 +3,20 @@ package com.taumu.rnDynamicSplash.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.ImageView;
 
-import com.facebook.common.references.CloseableReference;
-import com.facebook.datasource.DataSource;
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.imagepipeline.common.ImageDecodeOptions;
-import com.facebook.imagepipeline.core.ImagePipeline;
-import com.facebook.imagepipeline.image.CloseableBitmap;
-import com.facebook.imagepipeline.image.CloseableImage;
-import com.facebook.imagepipeline.request.ImageRequest;
-import com.facebook.imagepipeline.request.ImageRequestBuilder;
+import com.taumu.rnDynamicSplash.interfaces.Config;
+import com.taumu.rnDynamicSplash.interfaces.ShowCriteria;
+import com.taumu.rnDynamicSplash.interfaces.SplashData;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static com.taumu.rnDynamicSplash.utils.FileUtils.getFileName;
+import static com.taumu.rnDynamicSplash.utils.FileUtils.getLocalBitmap;
 
 public class Helpers {
   public static SplashData getValue(@NonNull Config config) {
@@ -66,41 +62,6 @@ public class Helpers {
     }
 
     return result;
-  }
-
-  public static void setImageFromFresco(String uri, ImageView imageView, Context context) {
-    ImagePipeline imagePipeline = Fresco.getImagePipeline();
-    ImageDecodeOptions decodeOptions = ImageDecodeOptions.newBuilder()
-      .build();
-
-    ImageRequest request = ImageRequestBuilder
-      .newBuilderWithSource(Uri.parse(uri))
-      .setImageDecodeOptions(decodeOptions)
-      .setAutoRotateEnabled(true)
-      .setLocalThumbnailPreviewsEnabled(true)
-      .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.DISK_CACHE)
-      .setProgressiveRenderingEnabled(false)
-      .build();
-    DataSource<CloseableReference<CloseableImage>> dataSource =
-      imagePipeline.fetchImageFromBitmapCache(request, context);
-    try {
-      CloseableReference<CloseableImage> imageReference = dataSource.getResult();
-      if (imageReference != null) {
-        try {
-          CloseableImage image = imageReference.get();
-          if (image instanceof CloseableBitmap) {
-            Bitmap bitmap = ((CloseableBitmap) image).getUnderlyingBitmap();
-            imageView.setImageBitmap(bitmap);
-          }
-        } finally {
-          CloseableReference.closeSafely(imageReference);
-        }
-      } else {
-        Log.v(Constants.packageName, "Fresco cache miss");
-      }
-    } finally {
-      dataSource.close();
-    }
   }
 
   public static String getJsonConfigs(Context context) {

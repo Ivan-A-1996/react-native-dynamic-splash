@@ -3,6 +3,10 @@ package com.taumu.rnDynamicSplash.utils;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.taumu.rnDynamicSplash.interfaces.ElementValue;
+import com.taumu.rnDynamicSplash.interfaces.ShowCriteria;
+import com.taumu.rnDynamicSplash.interfaces.SplashData;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,8 +14,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-class Parse {
-  static List<SplashData> getSplashesDataFromJson(@NonNull JSONArray jsonData) {
+public class Parse {
+  public static List<SplashData> getSplashesDataFromJson(@NonNull JSONArray jsonData) {
     try {
       List<SplashData> data = new ArrayList<>();
       int index = 0;

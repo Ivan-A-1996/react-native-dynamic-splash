@@ -6,7 +6,9 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.taumu.rnDynamicSplash.interfaces.ImageLoad;
 import com.taumu.rnDynamicSplash.utils.Constants;
+import com.taumu.rnDynamicSplash.utils.FileUtils;
 import com.taumu.rnDynamicSplash.utils.Helpers;
 
 import static com.taumu.rnDynamicSplash.DynamicSplash.mDynamicSplash;
@@ -43,5 +45,15 @@ public class DynamicSplashModule extends ReactContextBaseJavaModule {
     } else {
       promise.reject("0", "Configs not exist");
     }
+  }
+
+  @ReactMethod
+  public void downloadImage(Promise promise, String imageUri) {
+    new DynamicSplashDownLoad.DownloadAsyncTask().execute(new ImageLoad(promise, imageUri));
+  }
+
+  @ReactMethod
+  public void deleteImages() {
+    FileUtils.deleteFiles();
   }
 }

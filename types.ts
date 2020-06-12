@@ -8,7 +8,7 @@ export interface IConfigs {
 export interface ElementData {
     elementId: string;
     type: ElementTypes;
-    value: string;
+    value: string; //text, url or imageName without extension
 }
 
 export interface SplashData {

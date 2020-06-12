@@ -1,8 +1,12 @@
-package com.taumu.rnDynamicSplash.utils;
+package com.taumu.rnDynamicSplash.interfaces;
 
 import android.content.Context;
 import android.content.res.Configuration;
 import android.util.Log;
+
+import com.taumu.rnDynamicSplash.utils.Constants;
+import com.taumu.rnDynamicSplash.utils.Helpers;
+import com.taumu.rnDynamicSplash.utils.Parse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,10 +16,10 @@ import java.util.List;
 import java.util.Locale;
 
 public class Config {
-  String currentLang = null;
-  String currentTheme = null;
-  String currentCountry = null;
-  List<SplashData> splashesData;
+  public String currentLang = null;
+  public String currentTheme = null;
+  public String currentCountry = null;
+  public List<SplashData> splashesData;
 
   public Config(Context context) {
     String jsonConfigs = Helpers.getJsonConfigs(context);

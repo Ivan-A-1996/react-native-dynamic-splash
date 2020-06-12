@@ -3,18 +3,23 @@ package com.taumu.rnDynamicSplash;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.taumu.rnDynamicSplash.utils.Config;
+import com.taumu.rnDynamicSplash.interfaces.Config;
 import com.taumu.rnDynamicSplash.utils.Constants;
-import com.taumu.rnDynamicSplash.utils.ElementValue;
+import com.taumu.rnDynamicSplash.interfaces.ElementValue;
+import com.taumu.rnDynamicSplash.utils.FileUtils;
 import com.taumu.rnDynamicSplash.utils.Helpers;
-import com.taumu.rnDynamicSplash.utils.SplashData;
+import com.taumu.rnDynamicSplash.interfaces.SplashData;
 
 import java.lang.ref.WeakReference;
+
+import static com.taumu.rnDynamicSplash.utils.FileUtils.getFileName;
+import static com.taumu.rnDynamicSplash.utils.FileUtils.getLocalBitmap;
 
 public class DynamicSplash {
   private static Dialog mDialog;
@@ -46,12 +51,22 @@ public class DynamicSplash {
               if (elementData.type == Constants.ImageType) {
                 ImageView mSplashImage = mDialog.findViewById(id);
 
-                //TODO return custom image working for showing before rn
-                Helpers.setImageFromFresco(elementData.value, mSplashImage, activity);
-              } else if (elementData.type == Constants.TextType) {
-                TextView mSplashImage = mDialog.findViewById(id);
+                if (FileUtils.isUrl(elementData.value)) {
+                  String fileName = getFileName(elementData.value);
 
-                mSplashImage.setText(elementData.value);
+
+                  String filePath = Constants.packageName + fileName;
+                  Bitmap localBitmap = getLocalBitmap(filePath);
+                  if (localBitmap != null) {
+                    mSplashImage.setImageBitmap(localBitmap);
+                  }
+                } else {
+                  mSplashImage.setImageResource(activity.getResources().getIdentifier(elementData.value , "drawable", activity.getPackageName()));
+                }
+              } else if (elementData.type == Constants.TextType) {
+                TextView mSplashText = mDialog.findViewById(id);
+
+                mSplashText.setText(elementData.value);
               } else {
                 Log.v(Constants.packageName, "Bad type provided:" + elementData.type);
               }
@@ -72,6 +87,7 @@ public class DynamicSplash {
       activity = mActivity.get();
     }
     if (activity == null) return;
+
     final Activity _activity = activity;
     _activity.runOnUiThread(new Runnable() {
       @Override
