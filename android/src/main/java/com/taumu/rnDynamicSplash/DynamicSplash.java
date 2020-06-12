@@ -39,9 +39,9 @@ public class DynamicSplash {
         if (!activity.isFinishing()) {
           SplashData splashData = Helpers.getValue(config);
 
-          if (splashData != null && !mDialog.isShowing()) {
+          if (splashData != null && (mDialog == null || !mDialog.isShowing())) {
             Resources resources = activity.getResources();
-            mDialog = new Dialog(activity, resources.getIdentifier(splashData.themeName, "theme", activity.getPackageName()));
+            mDialog = new Dialog(activity, resources.getIdentifier(splashData.themeName, "style", activity.getPackageName()));
             mDialog.setContentView(resources.getIdentifier(splashData.layoutName, "layout", activity.getPackageName()));
             mDialog.setCancelable(false);
 

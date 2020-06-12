@@ -53,7 +53,7 @@ public class DynamicSplashModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void deleteImages() {
+  public void deleteFiles() {
     FileUtils.deleteFiles();
   }
 }

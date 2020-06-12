@@ -1,18 +1,26 @@
 import {IConfigs, ElementTypes} from "./types";
 
-const RNDynamicSplash = require("react-native").RNDynamicSplash;
+const RNDynamicSplash = require("react-native").NativeModules.RNDynamicSplash;
 
 class DynamicSplash {
-    hide() {
+    static hide() {
         RNDynamicSplash.hide();
     }
 
-    async getConfigs(): Promise<IConfigs> {
+    static async getConfigs(): Promise<IConfigs> {
         return JSON.parse(await RNDynamicSplash.getConfigs());
     }
 
-    async setConfigs(configs: IConfigs): Promise<void> {
+    static async setConfigs(configs: IConfigs): Promise<void> {
         await RNDynamicSplash.setConfigs(JSON.stringify(configs));
+    }
+
+    static async downloadImage(imageUri: string): Promise<void> {
+        await RNDynamicSplash.downloadImage(imageUri);
+    }
+
+    static async deleteFiles(): Promise<void> {
+        await RNDynamicSplash.deleteFiles();
     }
 }
 

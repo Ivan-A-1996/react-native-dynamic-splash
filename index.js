@@ -7,25 +7,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const RNDynamicSplash = require("react-native").RNDynamicSplash;
+import { ElementTypes } from "./types";
+const RNDynamicSplash = require("react-native").NativeModules.RNDynamicSplash;
 class DynamicSplash {
-    hide() {
+    static hide() {
         RNDynamicSplash.hide();
     }
-    getConfigs() {
+    static getConfigs() {
         return __awaiter(this, void 0, void 0, function* () {
             return JSON.parse(yield RNDynamicSplash.getConfigs());
         });
     }
-    setConfigs(configs) {
+    static setConfigs(configs) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield RNDynamicSplash.setConfigs(JSON.stringify(configs));
-            }
-            catch (e) {
-                console.error(e);
-            }
+            yield RNDynamicSplash.setConfigs(JSON.stringify(configs));
+        });
+    }
+    static downloadImage(imageUri) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield RNDynamicSplash.downloadImage(imageUri);
+        });
+    }
+    static deleteFiles() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield RNDynamicSplash.deleteFiles();
         });
     }
 }
-export { DynamicSplash };
+export { DynamicSplash, ElementTypes };

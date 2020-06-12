@@ -62,6 +62,11 @@ public class Config {
       } catch (JSONException error) {
         Log.v(Constants.packageName, "Error on parsing configs JSON");
       }
+    } else {
+      this.splashesData = new ArrayList<>();
+      this.splashesData.add(new SplashData(new ArrayList<ElementValue>()));
+      this.currentCountry = Locale.getDefault().getCountry();
+      this.currentLang = Locale.getDefault().getLanguage();
     }
   }
 }
