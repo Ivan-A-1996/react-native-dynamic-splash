@@ -1,17 +1,27 @@
 export interface IConfigs {
-    themeResId?: string;
-    layoutResId?: string;
-    lang?: string;
-    data: {
-        elementId: string;
-        type: ElementTypes;
-        values: {
-          startDate?: string;
-          endDate?: string;
-          lang?: string;
-          value: string;
-        }[];
-    }[];
+    currentLang?: string;
+    currentCountry?: string;
+    currentTheme?: "light" | "night";
+    splashesData: SplashData[];
+}
+
+export interface ElementData {
+    elementId: string;
+    type: ElementTypes;
+    value: string;
+}
+
+export interface SplashData {
+    showCriteria?: {
+        startDate?: string;
+        endDate?: string;
+        lang?: string;
+        country?: string;
+        theme?: "light" | "night";
+    },
+    themeName?: string; //for android only
+    layoutName?: string;
+    elementsData: ElementData[];
 }
 
 export enum ElementTypes {

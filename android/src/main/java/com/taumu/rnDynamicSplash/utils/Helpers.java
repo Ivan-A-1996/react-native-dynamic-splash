@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -19,47 +18,50 @@ import com.facebook.imagepipeline.image.CloseableImage;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class Helpers {
-  public static String getValue(@NonNull List<ElementValue> dataValues, @Nullable String currentLang) {
+  public static SplashData getValue(@NonNull Config config) {
     Date currentDate = new Date();
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    int resultQuality = 0;
-    String result = null;
-    for (ElementValue dataValue : dataValues) {
-      Date startDate = null;
-      Date endDate = null;
-      try {
-        startDate = format.parse(dataValue.startDate);
-        endDate = format.parse(dataValue.endDate);
-      } catch (ParseException e) {
-        Log.v(Constants.packageName, "Date Parse error: " + e.getMessage());
-      }
+    int resultQuality = -1;
+    SplashData result = null;
+    for (SplashData splashData : config.splashesData) {
       int currentQuality = 0;
-      if ((startDate == null || startDate.before(currentDate))
-        && (endDate == null || endDate.after(currentDate))) {
-        if (startDate != null && endDate != null) {
-          currentQuality += 2;
-        } else if (startDate != null || endDate != null) {
-          currentQuality++;
+      if (splashData.showCriteria != null) {
+        ShowCriteria showCriteria = splashData.showCriteria;
+        Date startDate = null;
+        Date endDate = null;
+        try {
+          startDate = format.parse(showCriteria.startDate);
+          endDate = format.parse(showCriteria.endDate);
+        } catch (ParseException e) {
+          Log.v(Constants.packageName, "Date Parse error: " + e.getMessage());
         }
-        if (currentLang != null && dataValue.lang != null && currentLang.toLowerCase().startsWith(dataValue.lang.toLowerCase())) {
-          currentQuality += 3;
+        if ((startDate == null || startDate.before(currentDate))
+          && (endDate == null || endDate.after(currentDate))) {
+          if (startDate != null && endDate != null) {
+            currentQuality += 2;
+          } else if (startDate != null || endDate != null) {
+            currentQuality++;
+          }
+          if (config.currentLang != null && showCriteria.lang != null && config.currentLang.toLowerCase().startsWith(showCriteria.lang.toLowerCase())) {
+            currentQuality ++;
+          }
+          if (config.currentTheme != null && config.currentTheme.equals(showCriteria.theme)) {
+            currentQuality ++;
+          }
+          if (config.currentCountry != null && config.currentCountry.equals(showCriteria.country)) {
+            currentQuality ++;
+          }
         }
+      }
 
-        if (resultQuality < currentQuality) {
-          resultQuality = currentQuality;
-          result = dataValue.value;
-        }
+      if (resultQuality < currentQuality) {
+        resultQuality = currentQuality;
+        result = splashData;
       }
     }
 
@@ -115,32 +117,5 @@ public class Helpers {
   public static void setJsonConfigs(Context context, String configs) {
     SharedPreferences preferences = context.getSharedPreferences(Constants.packageName, Context.MODE_PRIVATE);
     preferences.edit().putString("configs", configs).apply();
-  }
-
-  static List<ElementData> getDataListFromJson(JSONArray jsonData) {
-    try {
-      List<ElementData> data = new ArrayList<>();
-      if (jsonData == null) return data;
-      int index = 0;
-      JSONObject elem = jsonData.getJSONObject(index);
-      while (elem != null) {
-        ElementData elementData = ElementData.getElementDataFromJson(elem);
-        if (elementData != null) {
-          data.add(elementData);
-        }
-
-        elem = jsonData.getJSONObject(++index);
-      }
-
-      if (data.size() == 0) {
-        Log.v(Constants.packageName, "Provided \"data\" is invalid");
-      }
-
-      return data;
-    } catch (JSONException error) {
-      Log.v(Constants.packageName, "Error on parsing \"data\" JSON");
-
-      return null;
-    }
   }
 }

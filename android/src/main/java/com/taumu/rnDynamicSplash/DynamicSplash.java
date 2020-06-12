@@ -3,17 +3,18 @@ package com.taumu.rnDynamicSplash;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.res.Resources;
+import android.os.Build;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.taumu.rnDynamicSplash.utils.Config;
 import com.taumu.rnDynamicSplash.utils.Constants;
-import com.taumu.rnDynamicSplash.utils.ElementData;
+import com.taumu.rnDynamicSplash.utils.ElementValue;
 import com.taumu.rnDynamicSplash.utils.Helpers;
+import com.taumu.rnDynamicSplash.utils.SplashData;
 
 import java.lang.ref.WeakReference;
-import java.util.Locale;
 
 public class DynamicSplash {
   private static Dialog mDialog;
@@ -31,36 +32,31 @@ public class DynamicSplash {
       @Override
       public void run() {
         if (!activity.isFinishing()) {
-          Resources resources = activity.getResources();
-          mDialog = new Dialog(activity, resources.getIdentifier(config.themeResId, "theme", activity.getPackageName()));
-          mDialog.setContentView(resources.getIdentifier(config.layoutResId, "layout", activity.getPackageName()));
-          mDialog.setCancelable(false);
-          boolean isHaveData = false;
+          SplashData splashData = Helpers.getValue(config);
 
-          String lang = config.lang != null ? config.lang : Locale.getDefault().getLanguage();
+          if (splashData != null && !mDialog.isShowing()) {
+            Resources resources = activity.getResources();
+            mDialog = new Dialog(activity, resources.getIdentifier(splashData.themeName, "theme", activity.getPackageName()));
+            mDialog.setContentView(resources.getIdentifier(splashData.layoutName, "layout", activity.getPackageName()));
+            mDialog.setCancelable(false);
 
-          for (ElementData data : config.data) {
-            int id = resources.getIdentifier(data.elementId, "id", activity.getPackageName());
+            for (ElementValue elementData : splashData.elementsData) {
+              int id = resources.getIdentifier(elementData.elementId, "id", activity.getPackageName());
 
-            String value = Helpers.getValue(data.values, lang);
-
-            if (value != null) {
-              isHaveData = true;
-              if (data.type == ElementData.ImageType) {
+              if (elementData.type == Constants.ImageType) {
                 ImageView mSplashImage = mDialog.findViewById(id);
 
-                Helpers.setImageFromFresco(value, mSplashImage, activity);
-              } else if (data.type == ElementData.TextType) {
+                //TODO return custom image working for showing before rn
+                Helpers.setImageFromFresco(elementData.value, mSplashImage, activity);
+              } else if (elementData.type == Constants.TextType) {
                 TextView mSplashImage = mDialog.findViewById(id);
 
-                mSplashImage.setText(value);
+                mSplashImage.setText(elementData.value);
               } else {
-                Log.v(Constants.packageName, "Bad type provided:" + data.type);
+                Log.v(Constants.packageName, "Bad type provided:" + elementData.type);
               }
             }
-          }
 
-          if (isHaveData && !mDialog.isShowing()) {
             mDialog.show();
           }
         }
@@ -68,7 +64,7 @@ public class DynamicSplash {
     });
   }
 
-  public void hide(Activity activity) {
+  void hide(Activity activity) {
     if (activity == null) {
       if (mActivity == null) {
         return;
@@ -76,11 +72,20 @@ public class DynamicSplash {
       activity = mActivity.get();
     }
     if (activity == null) return;
-    activity.runOnUiThread(new Runnable() {
+    final Activity _activity = activity;
+    _activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
         if (mDialog != null && mDialog.isShowing()) {
-          mDialog.dismiss();
+          boolean isDestroyed = false;
+
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+              isDestroyed = _activity.isDestroyed();
+          }
+
+          if (!_activity.isFinishing() && !isDestroyed) {
+              mDialog.dismiss();
+          }
           mDialog = null;
         }
       }
